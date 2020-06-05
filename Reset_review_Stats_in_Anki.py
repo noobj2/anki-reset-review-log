@@ -2,15 +2,13 @@
 #// AmirHassan Asvadi ;)
 #// Copyright (c) 2020 Mohamad Janati (freaking stupid, right? :|)
 
-# import the main window object (mw) from ankiqt
 from aqt import mw
-# import the "show info" tool from utils.py
 from aqt.utils import showInfo, askUser
-# import all of the Qt GUI library
 from aqt.qt import *
 
 from time import mktime,time
 from datetime import datetime
+from os.path import dirname
 
 def testFunction():
     # get the number of cards in the current collection, which is stored in
@@ -85,6 +83,60 @@ def resetLastHour():
         return
 
 
+def time_window():
+    addon_path = dirname(__file__)
+    decks = mw.col.decks.all()
+    window = QDialog()
+    window.setWindowTitle("Delete revlog")
+    window.setWindowIcon(QIcon(addon_path + "/icon.png"))
+    delete_button = QPushButton("Delete")
+    for_label = QLabel("Review log for all cards in")
+    deck = QComboBox()
+    deck.addItem('Whole Collection', 'collection')
+    did_list = []
+    for item in decks:
+        deck_name = item["name"]
+        deck_id = item["id"]
+        deck.addItem(deck_name, deck_id)
+        did_list.append(deck_id)
+    from_label = QLabel("Reviewed from")
+    from_date = QDateTimeEdit()
+    from_date.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+    from_date.setMinimumDate(QDate(2006, 10, 5))
+    from_date.setDate(QDate.currentDate().addDays(-10))
+    from_date.setCalendarPopup(True)
+    to_label = QLabel("to")
+    to_date = QDateTimeEdit()
+    to_date.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+    to_date.setMinimumDate(QDate(2006, 10, 5))
+    to_date.setDate(QDate.currentDate())
+    to_date.setCalendarPopup(True)
+    delete_button.clicked.connect(lambda: custom_reset(deck, from_date.dateTime(), to_date.dateTime()))
+    layout = QHBoxLayout()
+    layout.addWidget(delete_button)
+    layout.addWidget(for_label)
+    layout.addWidget(deck)
+    layout.addWidget(from_label)
+    layout.addWidget(from_date)
+    layout.addWidget(to_label)
+    layout.addWidget(to_date)
+    window.setLayout(layout)
+    window.exec_()
+
+def custom_reset(deck, from_date, to_date):
+    if deck.currentData() == "collection":
+        deck2 = ""
+    else:
+        deck2 = "and cid in (select id from cards where did = {})".format(deck.currentData())
+    reset = askUser("Are you sure you want to delete review history for all cards in \"{}\" reviewed from \"{}\" to \"{}\"? \n This can't be undone.".format(deck.currentText(), from_date.toString("MM/dd/yyyy"), to_date.toString("MM/dd/yyyy")))
+    if reset:
+        mw.col.db.execute("delete from revlog where {} > id and id > {} {}".format(to_date.toTime_t() * 1000, from_date.toTime_t() * 1000, deck2))
+        showInfo("Done")
+    else:
+        return
+
+
+
 # Day in seconds
 DAY = 86400
 # Hour in seconds
@@ -100,6 +152,7 @@ resetTwoWeeksAction = resetStudy.addAction("Two Weeks")
 resetThreeWeeksAction = resetStudy.addAction("Three Weeks")
 resetMonthAction = resetStudy.addAction("A month ago")
 resetYearAction = resetStudy.addAction("A year ago")
+customResetAction = resetStudy.addAction("Custom")
 
 # Connect actions to functions
 resetLastHourAction.triggered.connect(resetLastHour)
@@ -110,6 +163,7 @@ resetThreeWeeksAction.triggered.connect(resetTwoWeeksAgo)
 resetThreeWeeksAction.triggered.connect(resetThreeWeeksAgo)
 resetMonthAction.triggered.connect(resetMonthAgo)
 resetYearAction.triggered.connect(resetYearAgo)
+customResetAction.triggered.connect(time_window)
 
 
 # # create a new menu item, "test"
