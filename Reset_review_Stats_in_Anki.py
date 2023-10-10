@@ -130,7 +130,7 @@ def custom_reset(deck, from_date, to_date):
         deck2 = "and cid in (select id from cards where did = {})".format(deck.currentData())
     reset = askUser("Are you sure you want to delete review history for all cards in \"{}\" reviewed from \"{}\" to \"{}\"? \n This can't be undone.".format(deck.currentText(), from_date.toString("MM/dd/yyyy"), to_date.toString("MM/dd/yyyy")))
     if reset:
-        mw.col.db.execute("delete from revlog where {} > id and id > {} {}".format(to_date.toTime_t() * 1000, from_date.toTime_t() * 1000, deck2))
+        mw.col.db.execute("delete from revlog where {} > id and id > {} {}".format(to_date.toSecsSinceEpoch() * 1000, from_date.toSecsSinceEpoch() * 1000, deck2))
         showInfo("Done")
     else:
         return
