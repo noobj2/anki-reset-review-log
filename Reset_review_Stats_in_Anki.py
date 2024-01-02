@@ -101,13 +101,13 @@ def time_window():
         did_list.append(deck_id)
     from_label = QLabel("Reviewed from")
     from_date = QDateTimeEdit()
-    from_date.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+    from_date.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
     from_date.setMinimumDate(QDate(2006, 10, 5))
     from_date.setDate(QDate.currentDate().addDays(-10))
     from_date.setCalendarPopup(True)
     to_label = QLabel("to")
     to_date = QDateTimeEdit()
-    to_date.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+    to_date.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
     to_date.setMinimumDate(QDate(2006, 10, 5))
     to_date.setDate(QDate.currentDate())
     to_date.setCalendarPopup(True)
@@ -121,7 +121,7 @@ def time_window():
     layout.addWidget(to_label)
     layout.addWidget(to_date)
     window.setLayout(layout)
-    window.exec_()
+    window.exec()
 
 def custom_reset(deck, from_date, to_date):
     if deck.currentData() == "collection":
