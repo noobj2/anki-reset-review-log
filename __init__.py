@@ -1,1 +1,1 @@
-from . import Reset_review_Stats_in_Anki
+from . import reset_review_stats_in_anki
